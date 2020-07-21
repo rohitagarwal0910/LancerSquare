@@ -16,6 +16,7 @@ contract LancerSquare {
         uint remainingReward;
         uint[] checkpointRewards;
         bool[] checkpointsCompleted;
+        uint creationTime;
     }
     
     mapping (bytes12 => Project) projects;                  //mapping from project id (created by backend) to Project struct. Stores all project details.
@@ -56,6 +57,7 @@ contract LancerSquare {
     
     modifier isAssigned(bytes12 _id){
         require(projects[_id].assignee != address(0), "Project not yet assigned");
+        _;
     }
     //---------------------------------------------
     
@@ -77,6 +79,7 @@ contract LancerSquare {
         projects[_id].remainingReward = totalReward;
         projects[_id].client = msg.sender;
         projects[_id].projectHash = _projectHash;
+        projects[_id].creationTime = now;
         
         projects[_id].allProjectsIndex = allProjects.length;
         projects[_id].clientProjectsIndex = clientProjects[msg.sender].length;
@@ -170,14 +173,14 @@ contract LancerSquare {
         return tempProjects;
     }
     
-    function getProject(bytes12 _id) view public projectExists(_id) returns(address, address, string memory, uint, uint[] memory, bool[] memory) {
+    function getProject(bytes12 _id) view public projectExists(_id) returns(address, address, string memory, uint[] memory, bool[] memory, uint) {
         return (
             projects[_id].client,
             projects[_id].assignee,
             projects[_id].projectHash,
-            projects[_id].remainingReward,
             projects[_id].checkpointRewards,
-            projects[_id].checkpointsCompleted
+            projects[_id].checkpointsCompleted,
+            projects[_id].creationTime
         );
     }
 
