@@ -1,0 +1,8 @@
+{
+  "short_name": "LancerSqaure",
+  "name": "A feelancing platform runnning on blockchain",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#00e7a0",
+  "background_color": "#f5f5f5"
+}
