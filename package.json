@@ -4,6 +4,7 @@
     "description": "Backend for a freelancing platform running on blockchain",
     "main": "backend/server.js",
     "scripts": {
+        "start": "node backend/server.js",
         "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend"
     },
     "author": "Rohit Agarwal",
