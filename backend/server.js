@@ -1,12 +1,12 @@
 const express = require("express");
 const connectDB = require("./config/db");
-const path = require("path")
+const path = require("path");
 
 const app = express();
 
 connectDB();
 
-app.use(express.json({extended: false}));
+app.use(express.json({ extended: false }));
 
 // app.use((req, res, next) => {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -16,12 +16,15 @@ app.use(express.json({extended: false}));
 
 app.use("/api/projects", require("./routes/api/projects"));
 
-  // Set static folder
-  app.use(express.static("../frontend/build"))
+// Set static folder
+app.use(
+    "/static",
+    express.static(path.resolve(__dirname, "../frontend/build"))
+);
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"))
-  })
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 
