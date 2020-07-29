@@ -314,7 +314,7 @@ li{
 .details{
   display: grid;
   grid-template-columns: 1fr 5fr;
-  grid-column-gap: 2%;
+  grid-column-gap: 15px;
   grid-row-gap: 20px;
 }
 
@@ -431,7 +431,7 @@ li{
 
 @media (max-width: 1400px) {
   .content{
-    width: 94vw;
+    width: 92vw;
   }
   .projects{
     grid-column-gap: 2%;
@@ -455,6 +455,7 @@ li{
     flex-direction: column;
     height: auto;
     margin-top: 70px;
+    padding-right: 0px;
   }
   .header{
     position: fixed;
@@ -463,7 +464,7 @@ li{
     z-index: 100;
   }
   .navbarlink{
-    padding: 20px;
+    padding: 20px 0px;
     width: 100%;
   }
   .content{

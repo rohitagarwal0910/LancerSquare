@@ -272,7 +272,7 @@ const ProjectDetails = (props) => {
                                         fontFamily: "monospace",
                                         fontSize: "small",
                                         color: "teal",
-                                        width: "66.5vw",
+                                        width: "64vw",
                                         overflowWrap: "break-word"
                                     }}
                                 >

@@ -6,17 +6,19 @@
   "scripts": {
     "start": "node server",
     "server": "nodemon server",
+    "dev": "concurrently \"npm run server\" \"npm run start --prefix frontend\" ",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
   },
   "author": "Rohit Agarwal",
   "license": "MIT",
   "dependencies": {
-    "config": "^3.3.1",
     "express": "^4.17.1",
     "express-validator": "^6.6.0",
     "mongoose": "^5.9.25"
   },
   "devDependencies": {
+    "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
     "nodemon": "^2.0.4"
   }
 }
