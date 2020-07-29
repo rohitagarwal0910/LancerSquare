@@ -1,4 +1,4 @@
-pragma solidity ^0.6.11;
+pragma solidity 0.6.11;
 //SPDX-License-Identifier: UNLICENSED
 
 contract LancerSquare {
@@ -7,26 +7,21 @@ contract LancerSquare {
     //client - the one who created the project.
     //assignee - the freelancer
     struct Project {
-        uint allProjectsIndex;
-        uint clientProjectsIndex;
-        uint assigneeProjectsIndex;
-        address payable client;
+        bytes20 projectHash;    //sha1
         address payable assignee;
-        string projectHash;
-        uint remainingReward;
-        uint[] checkpointRewards;
-        bool[] checkpointsCompleted;
+        address payable client;
+        uint allProjectsIndex;
         uint creationTime;
+        uint[] checkpointRewards;
+        mapping(uint => bool) checkpointsCompleted;
     }
     
-    mapping (bytes12 => Project) projects;                  //mapping from project id (created by backend) to Project struct. Stores all project details.
     bytes12[] allProjects;                                  //Stores all project id's for getter function.
-    mapping(address => bytes12[]) assigneeProjects;         //Stores all project id's assigned to a user for getter function.
-    mapping(address => bytes12[]) clientProjects;           //Stores all project id's created by a client for getter function.
+    mapping(bytes12 => Project) projects;                  //mapping from project id (created by backend) to Project struct. Stores all project details.
     
     
     //------------------EVENTS------------------
-    event ProjectAdded(bytes12 _id, address _clientAddress, string projectHash);
+    event ProjectAdded(bytes12 _id, address _clientAddress);
     event ProjectAssigned(bytes12 _id, address _assigneeAddress);
     event CheckpointCompleted(bytes12 _id, uint _checkpointIndex);
     event ProjectUnassigned(bytes12 _id);
@@ -36,7 +31,7 @@ contract LancerSquare {
     
     //------------------MODIFIERS------------------
     modifier onlyClient(bytes12 _id) {
-        require(msg.sender == projects[_id].client, "Only client is allowed to do this");
+        require(msg.sender == projects[_id].client, "Only client can do this");
         _;
     }
     
@@ -46,12 +41,12 @@ contract LancerSquare {
     }
     
     modifier onlyClientOrAssignee(bytes12 _id) {
-        require(msg.sender == projects[_id].client || msg.sender == projects[_id].assignee, "Only client and assignee are allowed to do this");
+        require(msg.sender == projects[_id].client || msg.sender == projects[_id].assignee, "Only client or assignee can do this");
         _;
     }
     
     modifier projectExists(bytes12 _id){
-        require(bytes(projects[_id].projectHash).length > 0, "Project does not exist");
+        require(projects[_id].projectHash != 0, "Project does not exist");
         _;
     }
     
@@ -64,54 +59,48 @@ contract LancerSquare {
     
     //Add project. For Checkpoint only reward values as uint[] is passed. By default all checkpoints.completed == false.
     //In case client does not want to have a checkpoint based reward, a single checkpoint corresponding to 100% completion will be made (handled by stack appliaction).
-    function addProject(bytes12 _id, string memory _projectHash, uint[] memory _checkpointRewards) public returns(bool) {
-        require(_id.length > 0, "id required");
-        require(bytes(_projectHash).length > 0, "Project Hash required");
+    function addProject(bytes12 _id, bytes20 _projectHash, uint[] calldata _checkpointRewards) external returns(bool) {
         require(_checkpointRewards.length > 0, "Checkpoints required");
-        require(bytes(projects[_id].projectHash).length == 0, "Project already added");
+        require(projects[_id].projectHash == 0, "Project already added");
         
         projects[_id].checkpointRewards = _checkpointRewards;
-        uint totalReward = 0;
-        for (uint i=0; i<_checkpointRewards.length; i++) {
-            projects[_id].checkpointsCompleted.push(false);
-            totalReward += _checkpointRewards[i];
-        }
-        projects[_id].remainingReward = totalReward;
         projects[_id].client = msg.sender;
         projects[_id].projectHash = _projectHash;
-        projects[_id].creationTime = now;
+        projects[_id].creationTime = block.timestamp;
         
         projects[_id].allProjectsIndex = allProjects.length;
-        projects[_id].clientProjectsIndex = clientProjects[msg.sender].length;
         allProjects.push(_id);
-        clientProjects[msg.sender].push(_id);
         
-        emit ProjectAdded(_id, msg.sender, _projectHash);
+        emit ProjectAdded(_id, msg.sender);
         return true;
     }
     
     //Assign project. Client will also have to transfer value to smart contract at this point.
-    function assign(bytes12 _id, address payable assigneeAddress) projectExists(_id) onlyClient(_id) payable public returns(bool) {
+    function assign(bytes12 _id, address payable assigneeAddress) projectExists(_id) onlyClient(_id) payable external returns(bool) {
         require(projects[_id].assignee == address(0), "Project already assigned");
         require(assigneeAddress != address(0), "Zero address submitted");
-        require(msg.value == projects[_id].remainingReward, "Wrong amount submitted");
+        
+        uint totalReward;
+        for(uint i=0; i<projects[_id].checkpointRewards.length; i++){
+            if(!projects[_id].checkpointsCompleted[i]){
+                totalReward += projects[_id].checkpointRewards[i];
+            }
+        }
+        
+        require(msg.value == totalReward, "Wrong amount submitted");
         
         projects[_id].assignee = assigneeAddress;
-        
-        projects[_id].assigneeProjectsIndex = assigneeProjects[assigneeAddress].length;
-        assigneeProjects[assigneeAddress].push(_id);
         
         emit ProjectAssigned(_id, assigneeAddress);
         return true;
     }
     
     //mark checkpoint as completed and transfer reward
-    function checkpointCompleted(bytes12 _id, uint index) projectExists(_id) onlyClient(_id) isAssigned(_id) public returns(bool) {
-        require(index < projects[_id].checkpointsCompleted.length, "Checkpoint index out of bounds");
+    function checkpointCompleted(bytes12 _id, uint index) projectExists(_id) onlyClient(_id) isAssigned(_id) external returns(bool) {
+        require(index < projects[_id].checkpointRewards.length, "Checkpoint index out of bounds");
         require(!projects[_id].checkpointsCompleted[index], "Checkpoint already completed");
         
         projects[_id].checkpointsCompleted[index] = true;
-        projects[_id].remainingReward -= projects[_id].checkpointRewards[index];
         
         emit CheckpointCompleted(_id, index);
         projects[_id].assignee.transfer(projects[_id].checkpointRewards[index]);
@@ -121,40 +110,27 @@ contract LancerSquare {
     
     //Called by client or assignee to unassign assignee from the project
     function unassign(bytes12 _id) projectExists(_id) isAssigned(_id) onlyClientOrAssignee(_id) public returns(bool) {
-        
-        bytes12[] storage tempAssigneeProjects = assigneeProjects[projects[_id].assignee];
-        bytes12 lastAssigneeProjectId = tempAssigneeProjects[tempAssigneeProjects.length - 1];
-        if (lastAssigneeProjectId != _id) {
-            uint thisAssigneeProjectsIndex = projects[_id].assigneeProjectsIndex;
-            tempAssigneeProjects[thisAssigneeProjectsIndex] = lastAssigneeProjectId;
-            projects[lastAssigneeProjectId].assigneeProjectsIndex = thisAssigneeProjectsIndex;
-        }
         delete projects[_id].assignee;
-        delete projects[_id].assigneeProjectsIndex;
-        tempAssigneeProjects.pop();
         
         emit ProjectUnassigned(_id);
-        if(projects[_id].remainingReward > 0)
-            projects[_id].client.transfer(projects[_id].remainingReward);
-            
+        uint totalReward;
+        for(uint i=0; i<projects[_id].checkpointRewards.length; i++){
+            if(!projects[_id].checkpointsCompleted[i]){
+                totalReward += projects[_id].checkpointRewards[i];
+            }
+        }
+    
+        projects[_id].client.transfer(totalReward);
         return true;
     }
     
     //delete project. Requires unassigning first so that remainingReward is not lost.
-    function deleteProject(bytes12 _id) projectExists(_id) onlyClient(_id) public returns(bool) {
+    function deleteProject(bytes12 _id) projectExists(_id) onlyClient(_id) external returns(bool) {
         if (projects[_id].assignee != address(0))
             unassign(_id);
         
         delete allProjects[projects[_id].allProjectsIndex];
-        bytes12[] storage tempClientProjects = clientProjects[projects[_id].client];
-        bytes12 lastClientProjectId = tempClientProjects[tempClientProjects.length - 1];
-        if (lastClientProjectId != _id) {
-            uint thisClientProjectsIndex = projects[_id].clientProjectsIndex;
-            tempClientProjects[thisClientProjectsIndex] = lastClientProjectId;
-            projects[lastClientProjectId].clientProjectsIndex = thisClientProjectsIndex;
-        }
         delete projects[_id];
-        tempClientProjects.pop();
         
         emit ProjectDeleted(_id);
         return true;
@@ -166,40 +142,66 @@ contract LancerSquare {
         return allProjects;
     }
     
-    function get20Projects(uint _from) view public returns(bytes12[20] memory) {
+    function get20Projects(uint _from) view public returns(bytes12[20] memory, uint) {
         bytes12[20] memory tempProjects;
-        for(uint i = 0; i < 20 && i < allProjects.length - _from; i++)
-            tempProjects[i] = allProjects[_from + i];
-        return tempProjects;
+        uint count = 0;
+        uint i = allProjects.length-1 - _from;
+        for(i; i >= 0 && count < 20; i--){
+            if(allProjects[i] != 0) {
+                tempProjects[count] = allProjects[i];
+                count++;
+            }
+        } 
+        return (tempProjects, allProjects.length-1-i);
     }
     
-    function getProject(bytes12 _id) view public projectExists(_id) returns(address, address, string memory, uint[] memory, bool[] memory, uint) {
+    function getProject(bytes12 _id) view public projectExists(_id) returns(address, address, bytes20, uint[] memory, bool[] memory, uint) {
+        bool[] memory _tempCheckpoints = new bool[](projects[_id].checkpointRewards.length);
+        for(uint i=0; i<projects[_id].checkpointRewards.length; i++){
+            _tempCheckpoints[i] = projects[_id].checkpointsCompleted[i];
+        }
         return (
             projects[_id].client,
             projects[_id].assignee,
             projects[_id].projectHash,
             projects[_id].checkpointRewards,
-            projects[_id].checkpointsCompleted,
+            _tempCheckpoints,
             projects[_id].creationTime
         );
-    }
-
-    function getAssigneeProjects() view public returns(bytes12[] memory) {
-        return assigneeProjects[msg.sender];
     }
     
     function getAssigneeProjects(address _assigneeAddress) view public returns(bytes12[] memory) {
         require(_assigneeAddress != address(0), "Zero address passed");
-        return assigneeProjects[_assigneeAddress];
-    }
-    
-    function getClientProjects() view public returns(bytes12[] memory) {
-        return clientProjects[msg.sender];
+        bytes12[] memory _tempProjects = new bytes12[](allProjects.length);
+        uint counter;
+        for(uint i = 0; i<allProjects.length; i++){
+            if(projects[allProjects[i]].assignee == _assigneeAddress){
+                _tempProjects[counter] = allProjects[i];
+                counter++;
+            }
+        }
+        bytes12[] memory _projects = new bytes12[](counter);
+        for(uint i=0; i<counter; i++){
+            _projects[i] = _tempProjects[i];
+        }
+        return _projects;
     }
     
     function getClientProjects(address _clientAddress) view public returns(bytes12[] memory) {
         require(_clientAddress != address(0), "Zero address passed");
-        return clientProjects[_clientAddress];
+        bytes12[] memory _tempProjects = new bytes12[](allProjects.length);
+        uint counter;
+        for(uint i = 0; i<allProjects.length; i++){
+            if(projects[allProjects[i]].client == _clientAddress){
+                _tempProjects[counter] = allProjects[i];
+                counter++;
+            }
+        }
+        bytes12[] memory _projects = new bytes12[](counter);
+        for(uint i=0; i<counter; i++){
+            _projects[i] = _tempProjects[i];
+        }
+        return _projects;
     }
     //-------------------------------------------
    
