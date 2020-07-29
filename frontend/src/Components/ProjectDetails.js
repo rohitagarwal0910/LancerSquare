@@ -135,7 +135,16 @@ const ProjectDetails = (props) => {
                     "ether"
                 );
                 projectData.about.completed = contractData[4];
-                projectData.creationTime = contractData[5];
+                const createdOn = new Date(parseInt(contractData[5]) * 1000);
+                projectData.creationTime = createdOn.toLocaleString("en", {
+                    hour12: "true",
+                    timeZoneName: "short",
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                });
                 projectData.userIsClient = false;
                 projectData.userIsAssignee = false;
 
@@ -252,11 +261,12 @@ const ProjectDetails = (props) => {
                                     Project hash does not match. Data has been
                                     possibly tempered with or deleted by
                                     someone. Only the created by address,
-                                    assignee addresses, checkpoint rewards and
-                                    checkpoints completion status are secure and
-                                    trustable. If you posted this project then
-                                    delete it to get any remaining reward held
-                                    in the smart contract back.
+                                    assignee addresses, posted on date and time,
+                                    checkpoint rewards and checkpoints
+                                    completion status are secure and trustable.
+                                    If you posted this project then delete it to
+                                    get any remaining reward held in the smart
+                                    contract back.
                                 </div>
                             )}
                             <div className="pdshortDesc">
@@ -273,7 +283,7 @@ const ProjectDetails = (props) => {
                                         fontSize: "small",
                                         color: "teal",
                                         width: "64vw",
-                                        overflowWrap: "break-word"
+                                        overflowWrap: "break-word",
                                     }}
                                 >
                                     <Link to={`/by/${project.client}`}>
@@ -301,6 +311,8 @@ const ProjectDetails = (props) => {
                                 <br />
                                 <div>{project.about.contact}</div>
                             </div>
+                            <div className="pdlabel">Posted on</div>
+                            <div>{project.creationTime}</div>
                             <div
                                 className="pdlabel"
                                 style={{ marginTop: "8px" }}

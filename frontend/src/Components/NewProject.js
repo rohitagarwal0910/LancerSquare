@@ -140,12 +140,11 @@ const NewProject = () => {
                 <input
                     type="text"
                     name="by"
-                    placeholder="Create As"
+                    placeholder="Post As (Your name, only for display)"
                     value={by}
                     onChange={(e) => onChange(e)}
                     required
                 />
-                {/* <input type="number" name="reward" placeholder="Reward" min="0" step="1" value={reward} onChange={(e)=>onChange(e)}/> */}
                 <input
                     type="text"
                     name="shortDesc"
