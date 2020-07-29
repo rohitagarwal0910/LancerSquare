@@ -22,8 +22,7 @@ app.use(
 );
 
 app.get("*", (req, res) => {
-  console.log(path.resolve(__dirname, "frontend/build/index.html"))
-    res.sendFile(path.resolve(__dirname, "frontend/build/index.html"));
+  res.sendFile(path.resolve(__dirname, "frontend/build/index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
