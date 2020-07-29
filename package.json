@@ -12,13 +12,13 @@
   "author": "Rohit Agarwal",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.6.0",
     "mongoose": "^5.9.25"
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
-    "dotenv": "^8.2.0",
     "nodemon": "^2.0.4"
   }
 }
