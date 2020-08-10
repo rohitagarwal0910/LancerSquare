@@ -282,7 +282,7 @@ const ProjectDetails = (props) => {
                                         fontFamily: "monospace",
                                         fontSize: "small",
                                         color: "teal",
-                                        width: "64vw",
+                                        width: "60vw",
                                         overflowWrap: "break-word",
                                     }}
                                 >
@@ -298,6 +298,8 @@ const ProjectDetails = (props) => {
                                         fontFamily: "monospace",
                                         fontSize: "small",
                                         marginTop: "4px",
+                                        width: "60vw",
+                                        overflowWrap: "break-word",
                                     }}
                                 >
                                     {project.assignee !== zeroAddress
