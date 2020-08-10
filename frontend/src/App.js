@@ -4,84 +4,89 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import fetchProjects from "./methods/fetchProjects";
 import Header from "./Components/Header/Header";
+import Footer from "./Components/Footer";
 import ProjectsList from "./Components/ProjectsList";
 import NewProject from "./Components/NewProject";
 import ProjectDetails from "./Components/ProjectDetails";
+import About from "./Components/About"
 
 const App = () => {
     return (
         <Router>
-            <Header />
-            <div className="content">
-                <Route
-                    exact
-                    path="/"
-                    render={() => (
-                        <ProjectsList
-                            title="All Projects"
-                            fetch={fetchProjects.all}
+            <div className="app">
+                <Header />
+                <div className="content">
+                    <Route
+                        exact
+                        path="/"
+                        render={() => (
+                            <ProjectsList
+                                title="All Projects"
+                                fetch={fetchProjects.all}
+                            />
+                        )}
+                    />
+                    <Switch>
+                        <Route
+                            exact
+                            path="/assigned"
+                            render={() => (
+                                <ProjectsList
+                                    title="Assigned to me"
+                                    fetch={fetchProjects.assigned}
+                                />
+                            )}
                         />
-                    )}
-                />
-                <Switch>
-                    <Route
-                        exact
-                        path="/assigned"
-                        render={() => (
-                            <ProjectsList
-                                title="Assigned to me"
-                                fetch={fetchProjects.assigned}
-                            />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path="/posted"
-                        render={() => (
-                            <ProjectsList
-                                title="Posted by me"
-                                fetch={fetchProjects.posted}
-                            />
-                        )}
-                    />
-                    <Route
-                        exact
-                        path="/details/:id"
-                        render={(props) => (
-                            <ProjectDetails id={props.match.params.id} />
-                        )}
-                    />
-                    <Route exact path="/new" component={NewProject} />
-                    <Route
-                        exact
-                        path="/by/:address"
-                        render={(props) => (
-                            <ProjectsList
-                                title={
-                                    <div>
-                                        Posted by
-                                        <div
-                                            style={{
-                                                fontFamily: "monospace",
-                                                fontSize: "15px",
-                                                overflowWrap: "break-word"
-                                            }}
-                                        >
-                                            {props.match.params.address}
+                        <Route
+                            exact
+                            path="/posted"
+                            render={() => (
+                                <ProjectsList
+                                    title="Posted by me"
+                                    fetch={fetchProjects.posted}
+                                />
+                            )}
+                        />
+                        <Route
+                            exact
+                            path="/details/:id"
+                            render={(props) => (
+                                <ProjectDetails id={props.match.params.id} />
+                            )}
+                        />
+                        <Route exact path="/new" component={NewProject} />
+                        <Route
+                            exact
+                            path="/by/:address"
+                            render={(props) => (
+                                <ProjectsList
+                                    title={
+                                        <div>
+                                            Posted by
+                                            <div
+                                                style={{
+                                                    fontFamily: "monospace",
+                                                    fontSize: "15px",
+                                                    overflowWrap: "break-word",
+                                                }}
+                                            >
+                                                {props.match.params.address}
+                                            </div>
                                         </div>
-                                    </div>
-                                }
-                                fetch={async () => {
-                                    return await fetchProjects.by(
-                                        props.match.params.address
-                                    );
-                                }}
-                            />
-                        )}
-                    />
-                </Switch>
+                                    }
+                                    fetch={async () => {
+                                        return await fetchProjects.by(
+                                            props.match.params.address
+                                        );
+                                    }}
+                                />
+                            )}
+                        />
+                        <Route exact path="/about" component={About} />
+                    </Switch>
+                </div>
+                <Footer />
             </div>
-            <div style={{ height: "50px" }}></div>
         </Router>
     );
 };

@@ -1,6 +1,6 @@
 # LancerSquare
 
-LancerSquare is a prototype for freelancing platform which stores it's data on blockchain.
+LancerSquare is a prototype of a freelancing platform which stores it's data on blockchain.
 Blockchain ensures that the data is always secure and can not be tampered with and provides a secure and integrated payment system too.
 
 Application deployed on Heroku at [lancersquare.herokuapp.com](https://lancersquare.herokuapp.com), currently running on Ropsten Test network.\
@@ -12,6 +12,8 @@ Blockchain can help by guaranteeing payments with help of smart contracts, provi
 
 LancerSqaure is a simple implementation of the above idea. New projects can be created by users (reffered to as creators, posters or clients) which are then listed on the website. Freelancers (reffered to as assignees) can look through these projects and contact the clients who can then assign their projects to the freelancer they like.\
 Before assigning a project, the clients have to deposit the reward money in a smart contract (kind of like an escrow) that can be released upon completion of the task. Through this, assignees can verify that the client indeed have enough money to fund the project. Temper-proof nature of blockchain ensures that all the data is secured.
+
+Read the original pitch [here](https://github.com/Zubi-io/Project-Ideas/issues/11)
 
 ### Architecture
 The architecture was designed so that a balance is kept between security and costs.

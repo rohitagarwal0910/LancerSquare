@@ -23,6 +23,9 @@ const navbar = () => {
             <Link to="/new" className="navbarlink">
                 Post New Project
             </Link>
+            <Link to="/about" className="navbarlink">
+                About
+            </Link>
             <div className="navbarlink" onClick={openAccount}>
                 Account
             </div>
