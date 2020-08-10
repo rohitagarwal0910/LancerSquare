@@ -23,7 +23,7 @@ Each project consists of details such as task description, contact info, the cli
 While creating a project, data such as description and contact info (which are expensive to store on a blockchain) are stored on a MongoDB database whereas all sensitive data such as addresses of people and details of money involved are stored on the blockchain. To guarantee the authenticy of data stored on MongoDB, a SHA1 hash of the data is also stored in blockchain which can be verified anytime to check if the data is correct.
 
 For seeing details of a project, the user application queries both MongoDB and the blockchain to collect all the pieces of project data. Then it calculates the SHA1 hash of the data stored in the MongoDB and matches it with the hash stored in blockchain to verify its authenticity.\
-*Even if MongoDB database is compromised in future, no loss will be faced by anyone it can be easily detected.*\
+*Even if MongoDB database is compromised in future, no loss will be faced by anyone as it can be easily detected.*\
 Instead of MongoDB, decentralised file storage systems such as [IPFS](https://ipfs.io) can be used for a truly decentralised platform.
 
 ### Smart Contract
