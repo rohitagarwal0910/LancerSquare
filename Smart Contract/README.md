@@ -12,7 +12,7 @@ Basic function description -
 * ```unassign()``` - can only be called by client or the assignee to unassign an user from a project. Any unpaid reward held in smart contract is refunded to the client.
 * ```delete()``` - can only be called by client. Deletes the project data from the smart contract. Calls ```unassign()``` if needed.
 
-Apart from this getter functions, events and modifiers are defined. See them in the [source code](https://github.com/rohitagarwal0910/LancerSquare/blob/master/Smart%20Contract/LancerSqaure_simple.sol).
+Apart from this, getter functions, events and modifiers are defined.
 
 ## Extended Version
 It consists of some more functions which can be used to support the following functions in a more feature rich platform -
