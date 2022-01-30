@@ -1,7 +1,7 @@
 pragma solidity ^0.8.11;
 //SPDX-License-Identifier: UNLICENSED
 
-contract BoobyTrapper {
+contract LancerSquare {
 
     //project desciption will be stored in a db, only its hash is stored here for proving that desciption has not been changed.
     //client - the one who created the project.
