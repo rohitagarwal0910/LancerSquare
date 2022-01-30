@@ -1,8 +1,8 @@
-pragma solidity ^0.6.11;
+pragma solidity ^0.8.11;
 //SPDX-License-Identifier: UNLICENSED
 
 contract LancerSquare {
-    
+
     //project desciption will be stored in a db, only its hash is stored here for proving that desciption has not been changed.
     //client - the one who created the project.
     //assignee - the freelancer
@@ -120,9 +120,9 @@ contract LancerSquare {
             totalReward += _checkpointRewards[i];
         }
         projects[_id].remainingReward = totalReward;
-        projects[_id].client = msg.sender;
+        projects[_id].client = payable(msg.sender);
         projects[_id].projectHash = _projectHash;
-        projects[_id].creationTime = now;
+        projects[_id].creationTime = block.timestamp;
         
         projects[_id].allProjectsIndex = allProjects.length;
         projects[_id].clientProjectsIndex = clientProjects[msg.sender].length;
@@ -151,7 +151,7 @@ contract LancerSquare {
     
     //accept offer. 
     function acceptOffer(bytes12 _id) projectExists(_id) onlyOfferedAssignee(_id) public returns(bool) {
-        projects[_id].assignee = msg.sender;
+        projects[_id].assignee = payable(msg.sender);
     
         projects[_id].assigneeProjectsIndex = assigneeProjects[msg.sender].length;
         assigneeProjects[msg.sender].push(_id);
